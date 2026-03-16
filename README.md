@@ -12,10 +12,9 @@ requires [nlohmann::json](https://github.com/nlohmann/json)
 int main()
 {
     //Setup
-    Discord discord = Discord("https://discord.com/api/webhooks/1483076544896176340/80Mxr-R02Z8SxdP19A2dkisLhijqkKuqTUv3uaN568tBYaR1NrHg34IDG4LtsUu9wFar");
+    Discord discord = Discord("https://discord.com/api/webhooks/...");
     discord.username.set("ika286");
-    //discord.avatar.set("URL"); <---- change avatar url
-
+    discord.avatar.set("https://avatars.githubusercontent.com/u/182407710?v=4&size=64");
     //Example Embed
     Embed embed1;
     embed1.setTitle("This is my title!")
