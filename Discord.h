@@ -93,7 +93,7 @@ public:
 		_data["fields"].push_back(json_data);
 		return *this;
 	}
-	//{ "name": "", "value":"value", "inline":bool } ‚Ì”z—ñ
+	//{ "name": "", "value":"value", "inline":bool } ã®é…åˆ—
 	Embed& setField(const nlohmann::json& json_data) {
 		_data["fields"] = json_data;
 		return *this;
@@ -128,7 +128,9 @@ public:
 		return *this;
 	}
 	Message& addEmbeds(const EmbedBuilder& embed) {
-		_data["embeds"].push_back(embed.json());
+		for (auto& emb : embed.json().get<nlohmann::json::array_t>()) {
+			_data["embeds"].push_back(emb);
+		}
 		return *this;
 	}
 public:
@@ -139,7 +141,7 @@ public:
 };
 
 class Discord final {
-public: //ŠÖ”‚Ìˆø”‚Æ‚µ‚Äg‚¤ê‡‚Í–¾¦“I‚ÈƒLƒƒƒXƒg‚ª•K—v‚Å‚·
+public: //é–¢æ•°ã®å¼•æ•°ã¨ã—ã¦ä½¿ã†å ´åˆã¯æ˜ç¤ºçš„ãªã‚­ãƒ£ã‚¹ãƒˆãŒå¿…è¦ã§ã™
 	Property<std::string> avatar;
 	Property<std::string> username;
 	Property<std::string> webhook;
