@@ -34,7 +34,7 @@ int main()
           });
 
     Embed embed3;
-    embed3.setTitle("This is my second!")
+    embed3.setTitle("This is my third!")
           .setDescription("this is my description!")
           .setColor("#ffffff")
           .setFooter("ikakusa", "https://avatars.githubusercontent.com/u/182407710?v=4&size=64");
