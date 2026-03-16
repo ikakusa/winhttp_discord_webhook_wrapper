@@ -12,7 +12,7 @@ requires [nlohmann::json](https://github.com/nlohmann/json)
 int main()
 {
     //Setup
-    Discord discord = Discord("https://discord.com/api/webhooks/....");
+    Discord discord = Discord("https://discord.com/api/webhooks/...");
     
     //Example Embed
     Embed embed1;
@@ -47,7 +47,13 @@ int main()
 
     //Message::embed function requires Embed class
     //Message::addEmbeds function requires EmbedBuilder class
-    if (discord.sendWebhook(Message("This is my:\nMessage content!").addEmbeds(builder).embed(Embed().setTitle("this is end").setColor("#ffffff")))) {
+    Message message("This is my:\nMessage content!");
+    message.addEmbeds(builder)
+           .embed(Embed()
+           .setTitle("this is end")
+           .setColor("#ffffff"));
+
+    if (discord.sendWebhook(message, DiscordFormData())) {
         printf("sent to webhook!!!!!!");
     };
 }
