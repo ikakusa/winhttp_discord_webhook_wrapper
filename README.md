@@ -12,7 +12,7 @@ requires [nlohmann::json](https://github.com/nlohmann/json)
 int main()
 {
     //Setup
-    Discord discord = Discord("/api/webhooks/1482728611827159114/w710-jvUYx6mrh6hOJpXLHAXelVoUabrr6hv0i_XMgEQoxr15DaGbogv9EO25lfTQswQ");
+    Discord discord = Discord("https://discord.com/api/webhooks/....");
     
     //Example Embed
     Embed embed1;
