@@ -184,7 +184,10 @@ public:
 
 
 public:
-	Discord(const std::string& webhook_url) : webhook(webhook_url) {
+	Discord(std::string webhook_url) {
+		if (webhook_url._Starts_with("https://")) webhook_url.erase(0, 8);
+		if (webhook_url._Starts_with("discord.com")) webhook_url.erase(0, 11);
+		webhook = webhook_url;
 		client = WinHttpOpen(
 			L"UserAgent/WinHTTP 1.0",
 			WINHTTP_ACCESS_TYPE_NO_PROXY,
