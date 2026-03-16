@@ -64,5 +64,5 @@ int main()
 
 # TODO
 
-- [] Timestamp
-- [] FormData::add_image()
+- [ ] Timestamp
+- [ ] FormData::add_image()
