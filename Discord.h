@@ -133,6 +133,10 @@ public:
 		}
 		return *this;
 	}
+	Message& setAllowedMentions(bool allowed) {
+		_data["allowed_mentions"] = false;
+		return *this;
+	}
 public:
 	Message(const std::string& content = "") {
 		_data["content"] = content;
@@ -140,13 +144,48 @@ public:
 	~Message() {};
 };
 
+struct DiscordFormData {
+private:
+	static inline std::string _boundary = "formdataboundary";
+	std::string _raw;
+	int _file_count = 0;
+public:
+	DiscordFormData& add_payload(nlohmann::json json) {
+		_raw += "--" + _boundary + "\r\n";
+		_raw += "Content-Disposition: form-data; name=\"payload_json\"\r\n";
+		_raw += "Content-Type: application/json\r\n\r\n";
+		_raw += json.dump() + "\r\n";
+		return *this;
+	}
+	DiscordFormData& add_file(const std::string& filename, const std::string& content_type, std::vector<char> file_bytes) {
+		_raw += "--" + _boundary + "\r\n";
+		_raw += "Content-Disposition: form-data; name=\"files[" + std::to_string(_file_count) + "]" + "\"; ";
+		_raw += "filename=\"" + filename + "\"";
+		_raw += "\r\n";
+		_raw += "Content-Type:" + content_type + "\r\n\r\n";
+		_raw.append(file_bytes.data(), file_bytes.size());
+		_raw += "\r\n";
+		++_file_count;
+		return *this;
+	}
+	static std::string boundary() {
+		return _boundary;
+	}
+	std::string string() const {
+		return _raw + "--" + _boundary + "--\r\n";
+	}
+	DiscordFormData() {};
+};
+
 class Discord final {
-public: //関数の引数として使う場合は明示的なキャストが必要です
+public:
 	Property<std::string> avatar;
 	Property<std::string> username;
+private:
 	Property<std::string> webhook;
 	Property<HINTERNET> client;
 	Property<HINTERNET> connect;
+	Property<HINTERNET> request;
 public:
 	static std::wstring strToWstr(const std::string& str) {
 		int size = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, nullptr, 0);
@@ -155,10 +194,43 @@ public:
 		return result;
 	}
 public:
-	bool sendWebhook(const Message& message) {
-		auto dumped = message.string();
+	bool sendWebhook(const Message& message, DiscordFormData data) {
+		auto msg = message.json();
+		data.add_payload(msg);
 
-		auto request = WinHttpOpenRequest(
+		if (!request) {
+			request = WinHttpOpenRequest(
+				connect,
+				L"POST",
+				strToWstr(webhook).c_str(),
+				NULL,
+				WINHTTP_NO_REFERER,
+				WINHTTP_DEFAULT_ACCEPT_TYPES,
+				WINHTTP_FLAG_SECURE
+			);
+		}
+
+		auto body = data.string();
+		auto res = WinHttpSendRequest(
+			request,
+			(L"Content-Type: multipart/form-data; boundary=" + strToWstr(DiscordFormData::boundary())).c_str(),
+			-1,
+			(LPVOID)body.c_str(),
+			body.length(),
+			body.length(),
+			0
+		);
+
+		WinHttpReceiveResponse(request, NULL);
+		return res;
+	}
+
+	void setWebhook(std::string webhook_url) {
+		if (webhook_url._Starts_with("https://")) webhook_url.erase(0, 8);
+		if (webhook_url._Starts_with("discord.com")) webhook_url.erase(0, 11);
+		webhook = webhook_url;
+		if (request) WinHttpCloseHandle(request);
+		request = WinHttpOpenRequest(
 			connect,
 			L"POST",
 			strToWstr(webhook).c_str(),
@@ -167,22 +239,7 @@ public:
 			WINHTTP_DEFAULT_ACCEPT_TYPES,
 			WINHTTP_FLAG_SECURE
 		);
-
-		auto res = WinHttpSendRequest(
-			request,
-			L"Content-Type: application/json",
-			-1,
-			(LPVOID)dumped.c_str(),
-			dumped.length(),
-			dumped.length(),
-			0
-		);
-
-		WinHttpReceiveResponse(request, NULL);
-		return res;
 	}
-
-
 public:
 	Discord(std::string webhook_url) {
 		if (webhook_url._Starts_with("https://")) webhook_url.erase(0, 8);
@@ -205,6 +262,8 @@ public:
 	};
 
 	~Discord() {
-		WinHttpCloseHandle(client);
+		if (client) WinHttpCloseHandle(client);
+		if (connect) WinHttpCloseHandle(connect);
+		if (request) WinHttpCloseHandle(request);
 	}
 };
