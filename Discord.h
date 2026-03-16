@@ -1,8 +1,7 @@
 #pragma once
 #include <string>
 #include "Json.hpp"
-#include <locale>
-#include <codecvt>
+#include <vector>
 #include <Windows.h>
 #include <winhttp.h>
 #pragma comment (lib, "winhttp.lib")
@@ -15,6 +14,18 @@ public:
 	Property() : _value(T()) {}
 	Property(const T& value) : _value(value) {}
 	Property(const Property<T>& other) : _value(other._value) {}
+
+	void set(const T& other_v) {
+		this->_value = other_v;
+	}
+
+	void set(const Property<T>& other) {
+		this->_value = other.get();
+	}
+
+	const T& get() const {
+		return _value;
+	}
 
 	Property<T>& operator=(const Property<T>& other) {
 		this->_value = other._value;
@@ -93,7 +104,7 @@ public:
 		_data["fields"].push_back(json_data);
 		return *this;
 	}
-	//{ "name": "", "value":"value", "inline":bool } の配列
+	//{ "name": "", "value":"value", "inline":bool } array
 	Embed& setField(const nlohmann::json& json_data) {
 		_data["fields"] = json_data;
 		return *this;
@@ -196,6 +207,8 @@ public:
 public:
 	bool sendWebhook(const Message& message, DiscordFormData data) {
 		auto msg = message.json();
+		msg["username"] = username.get();
+		msg["avatar_url"] = avatar.get();
 		data.add_payload(msg);
 
 		if (!request) {
