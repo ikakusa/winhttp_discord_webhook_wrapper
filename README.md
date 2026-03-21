@@ -15,6 +15,7 @@ int main()
     Discord discord = Discord("https://discord.com/api/webhooks/...");
     discord.username.set("ika286");
     discord.avatar.set("https://avatars.githubusercontent.com/u/182407710?v=4&size=64");
+
     //Example Embed
     Embed embed1;
     embed1.setTitle("This is my title!")
@@ -38,7 +39,8 @@ int main()
     embed3.setTitle("This is my third!")
           .setDescription("this is my description!")
           .setColor("#ffffff")
-          .setFooter("ikakusa", "https://avatars.githubusercontent.com/u/182407710?v=4&size=64");
+          .setFooter("ikakusa", "https://avatars.githubusercontent.com/u/182407710?v=4&size=64")
+          .setTimestamp(); //timestamp!
     
     //Add Multiple Embeds
     EmbedBuilder builder;
@@ -50,7 +52,8 @@ int main()
     //Message::addEmbeds function requires EmbedBuilder class
     Message message("This is my:\nMessage content!");
     message.addEmbeds(builder)
-           .embed(Embed().setTitle("this is end").setColor("#ffffff"));
+        .embed(Embed().setTitle("this is end").setColor("#ffffff"))
+        .addPoll(Poll("My Poll", true).addAnswer("Answer 1", "😡").addAnswer("Answer with emoji", "😡").setDuration(16));
 
     if (discord.sendWebhook(message, DiscordFormData())) {
         printf("sent to webhook!!!!!!");
@@ -63,7 +66,7 @@ int main()
 
 # TODO
 
-- [ ] Timestamp
+- [x] Timestamp
 - [ ] FormData::add_image()
 - [x] Poll
 - [ ] Poll answer with emoji

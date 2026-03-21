@@ -4,6 +4,8 @@
 #include <vector>
 #include <Windows.h>
 #include <winhttp.h>
+#include <chrono>
+#include <sstream>
 #pragma comment (lib, "winhttp.lib")
 
 template <typename T>
@@ -100,6 +102,15 @@ public:
 		);
 		return *this;
 	}
+	Embed& setTimestamp(std::chrono::system_clock::time_point time = std::chrono::system_clock::now()) {
+		std::time_t t = std::chrono::system_clock::to_time_t(time);
+		std::tm tm{};
+		gmtime_s(&tm, &t); // UTC
+		std::ostringstream oss;
+		oss << std::put_time(&tm, "%Y-%m-%dT%H:%M:%SZ");
+		_data["timestamp"] = oss.str();
+		return *this;
+	};
 	Embed& addField(const nlohmann::json& json_data) {
 		_data["fields"].push_back(json_data);
 		return *this;
