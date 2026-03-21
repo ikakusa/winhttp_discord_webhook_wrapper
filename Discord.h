@@ -127,6 +127,53 @@ public:
 	~EmbedBuilder() {};
 };
 
+struct Poll : public MessageBaseType {
+private:
+	int answer_id = 1;
+public:
+	[[deprecated]]
+	Poll& setLayoutType(int type = 1) {
+		_data["layout_type"] = type;
+		return *this;
+	}
+	Poll& setDuration(int duration) {
+		_data["duration"] = duration;
+		return *this;
+	}
+	Poll& setQuestion(const std::string& text) {
+		_data["question"] = text;
+		return *this;
+	}
+	//TODO: emoji
+	Poll& addAnswer(const std::string& text, const std::string& emoji = "", const std::string& emoji_id = "") {
+		nlohmann::json answer_obj = {};
+		answer_obj["poll_media"]["text"] = text;
+		answer_obj["answer_id"] = answer_id;
+		/*TODO
+		if (!emoji.empty()) {
+			answer_obj["poll_media"]["emoji"]["name"] = emoji;
+			if (!emoji_id.empty()) answer_obj["poll_media"]["emoji"]["id"] = emoji_id;
+		}
+		*/
+		_data["answers"].push_back(answer_obj);
+		++answer_id;
+		return *this;
+	}
+	Poll& setAllowMultiselect(bool allow) {
+		_data["allow_multiselect"] = allow;
+		return *this;
+	}
+public:
+	//duration = hour
+	Poll(const std::string& question, bool allow_multiselect = false, int duration = 24) {
+		_data["allow_multiselect"] = allow_multiselect;
+		_data["question"]["text"] = question;
+		_data["duration"] = duration;
+		_data["layout_type"] = 1;
+	};
+	~Poll() {};
+};
+
 struct Message : public MessageBaseType {
 public:
 	[[deprecated]]
@@ -146,6 +193,10 @@ public:
 	}
 	Message& setAllowedMentions(bool allowed) {
 		_data["allowed_mentions"] = false;
+		return *this;
+	}
+	Message& addPoll(const Poll& poll) {
+		_data["poll"] = poll.json();
 		return *this;
 	}
 public:
