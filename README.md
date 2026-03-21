@@ -65,3 +65,5 @@ int main()
 
 - [ ] Timestamp
 - [ ] FormData::add_image()
+- [*] Poll
+- [ ] Poll answer with emoji
