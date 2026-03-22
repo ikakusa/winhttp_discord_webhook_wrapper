@@ -1,4 +1,7 @@
-# A basic Discord Webhook wrapper using winhttp
+# Introduction
+
+A basic Discord Webhook wrapper using winhttp with MIT License
+
 requires C++17
 
 requires [nlohmann::json](https://github.com/nlohmann/json)
